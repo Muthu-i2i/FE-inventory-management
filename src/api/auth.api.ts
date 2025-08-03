@@ -1,7 +1,9 @@
 import axiosInstance from './axiosConfig';
 import { LoginCredentials, AuthResponse, User } from '../types/auth.types';
+import { mockAuthService } from '../mocks/mockAuthService';
 
-export const authService = {
+// Real API implementation (kept for future use)
+export const realAuthService = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
     try {
       const response = await axiosInstance.post('/auth/login', {
@@ -84,3 +86,7 @@ export const authService = {
     };
   }
 };
+
+// Use mock service for now
+// To switch back to real implementation, just change this line to: export const authService = realAuthService;
+export const authService = mockAuthService;
