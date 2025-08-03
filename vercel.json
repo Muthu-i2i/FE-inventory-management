@@ -1,4 +1,15 @@
 {
-  "buildCommand": "NODE_OPTIONS='--max-old-space-size=4096' npm run build",
-  "outputDirectory": "build"
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "X-Requested-With, Content-Type, Accept, Authorization" }
+      ]
+    }
+  ],
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
