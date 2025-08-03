@@ -46,7 +46,7 @@ import {
 } from 'recharts';
 import { enqueueSnackbar } from 'notistack';
 import PageContainer from '../../components/common/PageContainer';
-import { mockReportService } from '../../mocks/mockReportService';
+import { reportService } from '../../api/report.api';
 import { TimeRange } from '../../types/report.types';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
@@ -71,13 +71,13 @@ const ReportsPage: React.FC = () => {
         alerts,
         orders,
       ] = await Promise.all([
-        mockReportService.getStockAnalytics(),
-        mockReportService.getStockMovements(timeRange),
-        mockReportService.getCategoryDistribution(),
-        mockReportService.getWarehouseDistribution(),
-        mockReportService.getTopProducts(),
-        mockReportService.getStockAlerts(),
-        mockReportService.getOrderSummary(timeRange),
+              reportService.getStockAnalytics(),
+      reportService.getStockMovements(timeRange),
+      reportService.getCategoryDistribution(),
+      reportService.getWarehouseDistribution(),
+      reportService.getTopProducts(),
+      reportService.getStockAlerts(),
+      reportService.getOrderSummary(timeRange),
       ]);
 
       setData({
@@ -103,7 +103,7 @@ const ReportsPage: React.FC = () => {
   const handleExport = async (format: 'csv' | 'excel' | 'pdf') => {
     setExporting(true);
     try {
-      const blob = await mockReportService.exportReport(format);
+      const blob = await reportService.exportReport(format);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;

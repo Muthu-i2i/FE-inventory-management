@@ -16,7 +16,8 @@ import {
   Grid,
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
-import { StockItem, MovementType, StockMovementFormData } from '../../types/inventory.types';
+import { StockItem, MovementType } from '../../types/inventory.types';
+import { StockMovementFormData } from '../../types/inventory.types';
 
 interface StockMovementDialogProps {
   open: boolean;
@@ -33,7 +34,7 @@ const schema = yup.object().shape({
     .positive('Quantity must be positive')
     .required('Quantity is required'),
   reason: yup.string().required('Reason is required'),
-  reference: yup.string(),
+  reference: yup.string().optional(),
 });
 
 const StockMovementDialog: React.FC<StockMovementDialogProps> = ({
@@ -48,10 +49,9 @@ const StockMovementDialog: React.FC<StockMovementDialogProps> = ({
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<StockMovementFormData>({
+  } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
-      type,
       quantity: 0,
       reason: '',
       reference: '',
@@ -90,7 +90,7 @@ const StockMovementDialog: React.FC<StockMovementDialogProps> = ({
         </Box>
       </DialogTitle>
 
-      <form onSubmit={handleSubmit(handleFormSubmit)}>
+      <form onSubmit={handleSubmit(handleFormSubmit as any)}>
         <DialogContent dividers>
           <Grid container spacing={3}>
             <Grid item xs={12}>

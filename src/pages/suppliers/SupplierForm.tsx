@@ -16,7 +16,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { enqueueSnackbar } from 'notistack';
 import { Supplier, CreateSupplierData } from '../../types/supplier.types';
-import { mockSupplierService } from '../../mocks/mockSupplierService';
+import { supplierService } from '../../api/supplier.api';
 
 interface SupplierFormProps {
   open: boolean;
@@ -60,10 +60,10 @@ const SupplierForm: React.FC<SupplierFormProps> = ({
   const onFormSubmit = async (data: CreateSupplierData) => {
     try {
       if (supplier) {
-        await mockSupplierService.updateSupplier(supplier.id, data);
+        await supplierService.updateSupplier(supplier.id, data);
         enqueueSnackbar('Supplier updated successfully', { variant: 'success' });
       } else {
-        await mockSupplierService.createSupplier(data);
+        await supplierService.createSupplier(data);
         enqueueSnackbar('Supplier created successfully', { variant: 'success' });
       }
       onSubmit();

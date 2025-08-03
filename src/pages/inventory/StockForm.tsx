@@ -16,7 +16,7 @@ import { Close as CloseIcon } from '@mui/icons-material';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { mockProductService } from '../../mocks/mockProductService';
+import { productService } from '../../api/product.api';
 import { Product, Warehouse } from '../../types/product.types';
 import { CreateStockData } from '../../types/inventory.types';
 
@@ -62,8 +62,8 @@ const StockForm: React.FC<StockFormProps> = ({ open, onClose, onSubmit }) => {
       setLoading(true);
       try {
         const [productsRes, warehousesRes] = await Promise.all([
-          mockProductService.getProducts(),
-          mockProductService.getWarehouses(),
+                productService.getProducts(),
+      productService.getWarehouses(),
         ]);
         setProducts(productsRes.results);
         setWarehouses(warehousesRes);

@@ -25,7 +25,9 @@ import {
   Cell,
 } from 'recharts';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { mockInventoryService } from '../../mocks/mockInventoryService';
+import { reportService } from '../../api/report.api';
+import { TimeRange } from '../../types/inventory.types';
+import { inventoryService } from '../../api/inventory.api';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
@@ -49,7 +51,7 @@ interface StockDistribution {
 }
 
 const StockAnalytics: React.FC = () => {
-  const [timeRange, setTimeRange] = useState('week');
+  const [timeRange, setTimeRange] = useState<TimeRange>('week');
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [analytics, setAnalytics] = useState<StockAnalytics>({
@@ -68,32 +70,28 @@ const StockAnalytics: React.FC = () => {
 
   const loadAnalytics = async () => {
     try {
-      // In a real app, these would be API calls with proper date ranges
-      const stockData = await mockInventoryService.getStock({});
-      
-      // Mock data for demonstration
+      // Get stock analytics
+      const stockAnalytics = await reportService.getStockAnalytics();
       setAnalytics({
-        stockValue: 150000,
-        totalItems: stockData.count,
-        lowStockItems: 5,
-        outOfStockItems: 2,
-        stockTurnover: 3.5,
+        stockValue: stockAnalytics.stockValue,
+        totalItems: stockAnalytics.totalProducts,
+        lowStockItems: stockAnalytics.lowStockItems,
+        outOfStockItems: stockAnalytics.outOfStockItems,
+        stockTurnover: 0, // This will need to be calculated or provided by the API
       });
 
-      setMovementTrends([
-        { date: 'Mon', inbound: 40, outbound: 24 },
-        { date: 'Tue', inbound: 30, outbound: 35 },
-        { date: 'Wed', inbound: 20, outbound: 15 },
-        { date: 'Thu', inbound: 27, outbound: 23 },
-        { date: 'Fri', inbound: 45, outbound: 38 },
-      ]);
+      // Get stock movement trends
+      const trends = await reportService.getStockMovements(timeRange);
+      setMovementTrends(trends);
 
-      setDistribution([
-        { warehouse: 'Warehouse A', quantity: 300 },
-        { warehouse: 'Warehouse B', quantity: 250 },
-        { warehouse: 'Warehouse C', quantity: 200 },
-        { warehouse: 'Warehouse D', quantity: 150 },
-      ]);
+      // Get warehouse distribution
+      const warehouseData = await reportService.getWarehouseDistribution();
+      setDistribution(
+        warehouseData.map(item => ({
+          warehouse: item.warehouse,
+          quantity: item.quantity,
+        }))
+      );
     } catch (error) {
       console.error('Failed to load analytics:', error);
     }
@@ -111,7 +109,7 @@ const StockAnalytics: React.FC = () => {
                 fullWidth
                 label="Time Range"
                 value={timeRange}
-                onChange={(e) => setTimeRange(e.target.value)}
+                onChange={(e) => setTimeRange(e.target.value as TimeRange)}
               >
                 <MenuItem value="week">Last Week</MenuItem>
                 <MenuItem value="month">Last Month</MenuItem>

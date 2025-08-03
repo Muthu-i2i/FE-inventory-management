@@ -34,6 +34,17 @@ export interface CreatePurchaseOrderData {
   expectedDeliveryDate?: string;
 }
 
+export interface PurchaseOrderFormData {
+  supplier: number;
+  items: Array<{
+    product: number;
+    quantity: number;
+    unit_price: number;
+  }>;
+  notes: string | null;
+  expectedDeliveryDate: string | null;
+}
+
 export interface UpdatePurchaseOrderData extends Partial<CreatePurchaseOrderData> {
   status?: PurchaseOrderStatus;
 }
@@ -44,4 +55,15 @@ export interface PurchaseOrderFilters {
   dateFrom?: string;
   dateTo?: string;
   search?: string;
+}
+
+export interface PurchaseOrderFormData {
+  supplier: number;
+  items: Array<{
+    product: number;
+    quantity: number;
+    unit_price: number;
+  }>;
+  notes: string | null;
+  expectedDeliveryDate: string | null;
 }

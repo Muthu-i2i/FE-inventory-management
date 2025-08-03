@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { authApi } from '../../api/auth.api';
+import { authService } from '../../api/auth.api';
 import { AuthState, LoginCredentials } from '../../types/auth.types';
 
 const initialState: AuthState = {
@@ -13,7 +13,7 @@ const initialState: AuthState = {
 export const login = createAsyncThunk(
   'auth/login',
   async (credentials: LoginCredentials) => {
-    const response = await authApi.login(credentials);
+    const response = await authService.login(credentials);
     localStorage.setItem('token', response.token);
     return response;
   }
@@ -22,7 +22,7 @@ export const login = createAsyncThunk(
 export const logout = createAsyncThunk(
   'auth/logout',
   async () => {
-    await authApi.logout();
+    await authService.logout();
     localStorage.removeItem('token');
   }
 );

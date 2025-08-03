@@ -28,7 +28,7 @@ import {
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { enqueueSnackbar } from 'notistack';
 import PageContainer from '../../components/common/PageContainer';
-import { mockPurchaseOrderService } from '../../mocks/mockPurchaseOrderService';
+import { purchaseOrderService } from '../../api/purchase-order.api';
 import { PurchaseOrder, PurchaseOrderFilters, PurchaseOrderStatus } from '../../types/purchase-order.types';
 import PurchaseOrderForm from './PurchaseOrderForm';
 import DeleteConfirmDialog from '../../components/common/DeleteConfirmDialog';
@@ -54,7 +54,7 @@ const PurchaseOrderList: React.FC = () => {
   const loadOrders = async () => {
     setLoading(true);
     try {
-      const response = await mockPurchaseOrderService.getPurchaseOrders(filters);
+      const response = await purchaseOrderService.getPurchaseOrders(filters);
       setOrders(response.results);
     } catch (error) {
       enqueueSnackbar('Failed to load purchase orders', { variant: 'error' });
@@ -84,7 +84,7 @@ const PurchaseOrderList: React.FC = () => {
 
   const handleReceive = async (order: PurchaseOrder) => {
     try {
-      await mockPurchaseOrderService.receivePurchaseOrder(order.id);
+      await purchaseOrderService.receivePurchaseOrder(order.id);
       enqueueSnackbar('Purchase order received successfully', { variant: 'success' });
       loadOrders();
     } catch (error) {
@@ -110,7 +110,7 @@ const PurchaseOrderList: React.FC = () => {
     if (!selectedOrder) return;
 
     try {
-      await mockPurchaseOrderService.deletePurchaseOrder(selectedOrder.id);
+      await purchaseOrderService.deletePurchaseOrder(selectedOrder.id);
       enqueueSnackbar('Purchase order deleted successfully', { variant: 'success' });
       loadOrders();
     } catch (error) {

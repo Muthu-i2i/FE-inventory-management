@@ -16,7 +16,7 @@ import { Close as CloseIcon } from '@mui/icons-material';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { StockMovementData } from '../../types/inventory.types';
+import { StockMovementData, StockMovementFormData, MovementType } from '../../types/inventory.types';
 
 interface StockMovementFormProps {
   open: boolean;
@@ -49,13 +49,12 @@ const StockMovementForm: React.FC<StockMovementFormProps> = ({
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<StockMovementData>({
+  } = useForm<StockMovementFormData>({
     resolver: yupResolver(schema),
     defaultValues: {
-      stock: stockId,
-      movement_type: type,
       quantity: 0,
       reason: '',
+      reference: '',
     },
   });
 
@@ -64,9 +63,16 @@ const StockMovementForm: React.FC<StockMovementFormProps> = ({
     onClose();
   };
 
-  const onFormSubmit = async (data: StockMovementData) => {
+  const onFormSubmit = async (data: StockMovementFormData) => {
+    const submitData: StockMovementData = {
+      stock: stockId,
+      movement_type: type === 'IN' ? MovementType.INBOUND : MovementType.OUTBOUND,
+      quantity: data.quantity,
+      reason: data.reason,
+      reference: data.reference,
+    };
     try {
-      await onSubmit(data);
+      await onSubmit(submitData);
       handleClose();
     } catch (error) {
       // Error handling is done by parent component

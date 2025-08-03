@@ -52,6 +52,13 @@ export interface ProductFormData {
   price: number;
 }
 
+export interface ProductFilters {
+  category?: number;
+  supplier?: number;
+  warehouse?: number;
+  search?: string;
+}
+
 export interface PaginatedResponse<T> {
   count: number;
   next: string | null;

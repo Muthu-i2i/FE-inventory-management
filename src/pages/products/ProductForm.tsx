@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
-import { mockProductService } from '../../mocks/mockProductService';
+import { productService } from '../../api/product.api';
 import { Product, ProductFormData, Category, Supplier, Warehouse } from '../../types/product.types';
 
 interface ProductFormProps {
@@ -32,9 +32,9 @@ const schema = yup.object().shape({
   name: yup.string().required('Name is required'),
   sku: yup.string().required('SKU is required'),
   barcode: yup.string().required('Barcode is required'),
-  category_id: yup.string().required('Category is required'),
-  supplier_id: yup.string().required('Supplier is required'),
-  warehouse_id: yup.string().required('Warehouse is required'),
+  category: yup.number().required('Category is required'),
+  supplier: yup.number().required('Supplier is required'),
+  warehouse: yup.number().required('Warehouse is required'),
   unit_price: yup
     .number()
     .typeError('Unit price must be a number')
@@ -72,9 +72,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
           name: product.name,
           sku: product.sku,
           barcode: product.barcode,
-          category_id: product.category.id,
-          supplier_id: product.supplier.id,
-          warehouse_id: product.warehouse.id,
+          category: product.category,
+          supplier: product.supplier,
+          warehouse: product.warehouse,
           unit_price: product.unit_price,
           price: product.price,
         }
@@ -85,9 +85,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
     const loadData = async () => {
       try {
         const [categoriesData, suppliersData, warehousesData] = await Promise.all([
-          mockProductService.getCategories(),
-          mockProductService.getSuppliers(),
-          mockProductService.getWarehouses(),
+                productService.getCategories(),
+      productService.getSuppliers(),
+      productService.getWarehouses(),
         ]);
         setCategories(categoriesData);
         setSuppliers(suppliersData);
@@ -177,9 +177,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 select
                 fullWidth
                 label="Category"
-                {...register('category_id')}
-                error={!!errors.category_id}
-                helperText={errors.category_id?.message}
+                {...register('category')}
+                error={!!errors.category}
+                helperText={errors.category?.message}
                 disabled={loading}
               >
                 {categories.map((category) => (
@@ -194,9 +194,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 select
                 fullWidth
                 label="Supplier"
-                {...register('supplier_id')}
-                error={!!errors.supplier_id}
-                helperText={errors.supplier_id?.message}
+                {...register('supplier')}
+                error={!!errors.supplier}
+                helperText={errors.supplier?.message}
                 disabled={loading}
               >
                 {suppliers.map((supplier) => (
@@ -211,9 +211,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 select
                 fullWidth
                 label="Warehouse"
-                {...register('warehouse_id')}
-                error={!!errors.warehouse_id}
-                helperText={errors.warehouse_id?.message}
+                {...register('warehouse')}
+                error={!!errors.warehouse}
+                helperText={errors.warehouse?.message}
                 disabled={loading}
               >
                 {warehouses.map((warehouse) => (

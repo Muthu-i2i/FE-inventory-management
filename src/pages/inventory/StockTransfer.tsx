@@ -17,7 +17,7 @@ import { Close as CloseIcon } from '@mui/icons-material';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { mockProductService } from '../../mocks/mockProductService';
+import { productService } from '../../api/product.api';
 import { Warehouse } from '../../types/product.types';
 import { StockResponse } from '../../types/inventory.types';
 
@@ -77,7 +77,7 @@ const StockTransfer: React.FC<StockTransferProps> = ({
     const loadWarehouses = async () => {
       setLoading(true);
       try {
-        const response = await mockProductService.getWarehouses();
+        const response = await productService.getWarehouses();
         setWarehouses(response.filter(w => w.id !== stock.warehouse));
       } catch (error) {
         console.error('Failed to load warehouses:', error);

@@ -6,33 +6,35 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const mockAuthService = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
-    // Simulate network delay
-    await delay(1000);
-
-    // Check if credentials match any mock user
-    const isAdmin = credentials.username === mockCredentials.admin.username && 
-                   credentials.password === mockCredentials.admin.password;
-    
-    const isManager = credentials.username === mockCredentials.manager.username && 
-                     credentials.password === mockCredentials.manager.password;
-    
-    const isStaff = credentials.username === mockCredentials.staff.username && 
-                    credentials.password === mockCredentials.staff.password;
-
-    if (isAdmin || isManager || isStaff) {
-      const user = users.find(u => u.username === credentials.username);
-      if (user) {
-        // Generate a mock JWT token
-        const token = `mock-jwt-token-${user.username}-${Date.now()}`;
-        return {
-          user,
-          token
-        };
+    // Call real API for token
+    try {
+      const response = await fetch('https://be-inventory-management.onrender.com/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username: credentials.username,
+          password: credentials.password
+        })
+      });
+      if (!response.ok) {
+        throw new Error('Invalid credentials');
       }
+      const data = await response.json();
+      // API returns { access: token, refresh: token }
+      // Map user info from local mock data
+      const user = users.find(u => u.username === credentials.username);
+      if (!user) {
+        throw new Error('User not found in local mock data');
+      }
+      return {
+        user,
+        token: data.access
+      };
+    } catch (error: any) {
+      throw new Error(error.message || 'Login failed');
     }
-
-    // Simulate API error response
-    throw new Error('Invalid credentials');
   },
 
   logout: async (): Promise<void> => {

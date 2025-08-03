@@ -1,22 +1,11 @@
-import { PaginatedResponse } from '../types/inventory.types';
-
-interface Product {
-  id: number;
-  name: string;
-  sku: string;
-  barcode: string;
-  category: number;
-  supplier: number;
-  warehouse: number;
-  unit_price: number;
-  price: number;
-}
-
-interface ProductFilters {
-  category?: number;
-  supplier?: number;
-  warehouse?: number;
-}
+import { 
+  Product, 
+  ProductFilters, 
+  PaginatedResponse,
+  Category,
+  Supplier,
+  Warehouse
+} from '../types/product.types';
 
 const mockProducts: Product[] = [
   {
@@ -54,20 +43,82 @@ const mockProducts: Product[] = [
   },
 ];
 
+const mockCategories: Category[] = [
+  { id: 1, name: 'Electronics' },
+  { id: 2, name: 'Furniture' },
+  { id: 3, name: 'Office Supplies' },
+  { id: 4, name: 'Accessories' },
+];
+
+const mockSuppliers: Supplier[] = [
+  { id: 1, name: 'Tech Supplies Inc.', email: 'tech@supplies.com' },
+  { id: 2, name: 'Office Solutions Ltd.', email: 'office@solutions.com' },
+  { id: 3, name: 'Global Electronics', email: 'global@electronics.com' },
+];
+
+const mockWarehouses: Warehouse[] = [
+  { 
+    id: 1, 
+    name: 'Main Warehouse',
+    capacity: 10000,
+    address: '123 Main St, City'
+  },
+  { 
+    id: 2, 
+    name: 'East Coast',
+    capacity: 5000,
+    address: '456 East Ave, Coast City'
+  },
+  { 
+    id: 3, 
+    name: 'West Coast',
+    capacity: 5000,
+    address: '789 West Blvd, Coast City'
+  },
+  { 
+    id: 4, 
+    name: 'Central',
+    capacity: 3000,
+    address: '321 Central Rd, Middle City'
+  },
+];
+
 export const mockProductService = {
   getProducts: async (
-    filters: ProductFilters,
+    filters?: ProductFilters,
     page = 1,
     page_size = 10
   ): Promise<PaginatedResponse<Product>> => {
     // Simulate API delay
     await new Promise((resolve) => setTimeout(resolve, 500));
 
+    let filteredProducts = [...mockProducts];
+
+    if (filters) {
+      if (filters.category) {
+        filteredProducts = filteredProducts.filter(p => p.category === filters.category);
+      }
+      if (filters.supplier) {
+        filteredProducts = filteredProducts.filter(p => p.supplier === filters.supplier);
+      }
+      if (filters.warehouse) {
+        filteredProducts = filteredProducts.filter(p => p.warehouse === filters.warehouse);
+      }
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase();
+        filteredProducts = filteredProducts.filter(p => 
+          p.name.toLowerCase().includes(searchLower) ||
+          p.sku.toLowerCase().includes(searchLower) ||
+          p.barcode.toLowerCase().includes(searchLower)
+        );
+      }
+    }
+
     return {
-      count: mockProducts.length,
+      count: filteredProducts.length,
       next: null,
       previous: null,
-      results: mockProducts,
+      results: filteredProducts,
     };
   },
 
@@ -101,5 +152,20 @@ export const mockProductService = {
     await new Promise((resolve) => setTimeout(resolve, 500));
     // In a real app, this would remove the product from the database
     return Promise.resolve();
+  },
+
+  getCategories: async (): Promise<Category[]> => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return mockCategories;
+  },
+
+  getSuppliers: async (): Promise<Supplier[]> => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return mockSuppliers;
+  },
+
+  getWarehouses: async (): Promise<Warehouse[]> => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    return mockWarehouses;
   },
 };

@@ -29,8 +29,8 @@ import {
 } from '@mui/icons-material';
 import { enqueueSnackbar } from 'notistack';
 import PageContainer from '../../components/common/PageContainer';
-import { mockInventoryService } from '../../mocks/mockInventoryService';
-import { StockResponse, StockMovement, StockAdjustment } from '../../types/inventory.types';
+import { inventoryService } from '../../api/inventory.api';
+import { StockResponse, StockMovement, StockAdjustment, MovementType } from '../../types/inventory.types';
 import StockHistory from './StockHistory';
 import StockTransfer from './StockTransfer';
 import StockForm from './StockForm';
@@ -51,7 +51,7 @@ const InventoryList: React.FC = () => {
   const loadData = async () => {
     setLoading(true);
     try {
-      const response = await mockInventoryService.getStock({});
+      const response = await inventoryService.getStock({});
       setStocks(response.results);
     } catch (error) {
       enqueueSnackbar('Failed to load stock data', { variant: 'error' });
@@ -68,8 +68,8 @@ const InventoryList: React.FC = () => {
     setSelectedStock(stock);
     try {
       // In a real app, these would be API calls
-      const movements = await mockInventoryService.getStockMovements(stock.id);
-      const adjustments = await mockInventoryService.getStockAdjustments(stock.id);
+      const movements = await inventoryService.getStockMovements(stock.id);
+      const adjustments = await inventoryService.getStockAdjustments(stock.id);
       setStockMovements(movements);
       setStockAdjustments(adjustments);
       setHistoryDialogOpen(true);
@@ -92,16 +92,16 @@ const InventoryList: React.FC = () => {
     if (!selectedStock) return;
 
     try {
-      await mockInventoryService.recordStockMovement({
+      await inventoryService.recordStockMovement({
         stock: selectedStock.id,
-        movement_type: 'OUT',
+        movement_type: MovementType.OUTBOUND,
         quantity: data.quantity,
         reason: `Transfer to Warehouse ${data.targetWarehouse}`,
       });
 
-      await mockInventoryService.recordStockMovement({
+      await inventoryService.recordStockMovement({
         stock: selectedStock.id,
-        movement_type: 'IN',
+        movement_type: MovementType.INBOUND,
         quantity: data.quantity,
         reason: `Transfer from Warehouse ${selectedStock.warehouse}`,
       });
@@ -121,7 +121,7 @@ const InventoryList: React.FC = () => {
     if (!selectedStock) return;
 
     try {
-      await mockInventoryService.deleteStock(selectedStock.id);
+      await inventoryService.deleteStock(selectedStock.id);
       enqueueSnackbar('Stock deleted successfully', { variant: 'success' });
       setDeleteConfirmOpen(false);
       loadData();
@@ -214,7 +214,7 @@ const InventoryList: React.FC = () => {
               <TableBody>
                 {filteredStocks.map((stock) => (
                   <TableRow key={stock.id}>
-                    <TableCell>{stock.product}</TableCell>
+                    <TableCell>{stock.product.name}</TableCell>
                     <TableCell>{stock.warehouse}</TableCell>
                     <TableCell>{stock.location}</TableCell>
                     <TableCell align="right">
@@ -289,7 +289,7 @@ const InventoryList: React.FC = () => {
       <StockForm
         open={stockFormOpen}
         onClose={() => setStockFormOpen(false)}
-        onSubmit={() => {
+        onSubmit={async () => {
           setStockFormOpen(false);
           loadData();
         }}

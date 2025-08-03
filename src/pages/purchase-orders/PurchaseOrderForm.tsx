@@ -26,11 +26,12 @@ import * as yup from 'yup';
 import { enqueueSnackbar } from 'notistack';
 import { 
   PurchaseOrder, 
-  CreatePurchaseOrderData 
+  CreatePurchaseOrderData,
+  PurchaseOrderFormData
 } from '../../types/purchase-order.types';
-import { mockPurchaseOrderService } from '../../mocks/mockPurchaseOrderService';
-import { mockSupplierService } from '../../mocks/mockSupplierService';
-import { mockProductService } from '../../mocks/mockProductService';
+import { purchaseOrderService } from '../../api/purchase-order.api';
+import { supplierService } from '../../api/supplier.api';
+import { productService } from '../../api/product.api';
 
 interface PurchaseOrderFormProps {
   open: boolean;
@@ -54,8 +55,8 @@ const schema = yup.object().shape({
         .positive('Unit price must be positive'),
     })
   ).min(1, 'At least one item is required'),
-  notes: yup.string().nullable(),
-  expectedDeliveryDate: yup.string().nullable(),
+  notes: yup.string().transform((value) => value || null).nullable(),
+  expectedDeliveryDate: yup.string().transform((value) => value || null).nullable(),
 });
 
 const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
@@ -76,7 +77,7 @@ const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
     watch,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<CreatePurchaseOrderData>({
+  } = useForm({
     resolver: yupResolver(schema),
     defaultValues: order ? {
       supplier: order.supplier,
@@ -88,7 +89,7 @@ const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
       notes: order.notes,
       expectedDeliveryDate: order.expectedDeliveryDate,
     } : {
-      items: [{ product: '', quantity: 1, unit_price: 0 }],
+      items: [{ product: 0, quantity: 1, unit_price: 0 }],
     },
   });
 
@@ -102,8 +103,8 @@ const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
       setLoading(true);
       try {
         const [suppliersRes, productsRes] = await Promise.all([
-          mockSupplierService.getSuppliers(),
-          mockProductService.getProducts({}),
+                supplierService.getSuppliers(),
+      productService.getProducts({}),
         ]);
         setSuppliers(suppliersRes.results);
         setProducts(productsRes.results);
@@ -124,13 +125,20 @@ const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
     onClose();
   };
 
-  const onFormSubmit = async (data: CreatePurchaseOrderData) => {
+  const onFormSubmit = async (data: PurchaseOrderFormData) => {
+    // Convert form data to API format
+    const apiData: CreatePurchaseOrderData = {
+      supplier: data.supplier,
+      items: data.items,
+      notes: data.notes || '',
+      expectedDeliveryDate: data.expectedDeliveryDate || new Date().toISOString(),
+    };
     try {
       if (order) {
-        await mockPurchaseOrderService.updatePurchaseOrder(order.id, data);
+        await purchaseOrderService.updatePurchaseOrder(order.id, apiData);
         enqueueSnackbar('Purchase order updated successfully', { variant: 'success' });
       } else {
-        await mockPurchaseOrderService.createPurchaseOrder(data);
+        await purchaseOrderService.createPurchaseOrder(apiData);
         enqueueSnackbar('Purchase order created successfully', { variant: 'success' });
       }
       onSubmit();
@@ -177,7 +185,7 @@ const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
       <DialogTitle>
         {order ? 'Edit Purchase Order' : 'Create Purchase Order'}
       </DialogTitle>
-      <Box component="form" onSubmit={handleSubmit(onFormSubmit)}>
+      <Box component="form" onSubmit={handleSubmit(onFormSubmit as any)}>
         <DialogContent>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
@@ -200,7 +208,7 @@ const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
             <Grid item xs={12} sm={6}>
               <DatePicker
                 label="Expected Delivery Date"
-                value={watch('expectedDeliveryDate') ? new Date(watch('expectedDeliveryDate')) : null}
+                value={watch('expectedDeliveryDate') ? new Date(watch('expectedDeliveryDate') || '') : null}
                 onChange={(date) => setValue('expectedDeliveryDate', date?.toISOString())}
                 slotProps={{
                   textField: {
@@ -217,7 +225,7 @@ const PurchaseOrderForm: React.FC<PurchaseOrderFormProps> = ({
                   <Typography variant="subtitle1">Order Items</Typography>
                   <Button
                     startIcon={<AddIcon />}
-                    onClick={() => append({ product: '', quantity: 1, unit_price: 0 })}
+                    onClick={() => append({ product: 0, quantity: 1, unit_price: 0 })}
                   >
                     Add Item
                   </Button>

@@ -17,7 +17,8 @@ import {
   Alert,
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
-import { StockItem, StockAdjustmentFormData } from '../../types/inventory.types';
+import { StockItem } from '../../types/inventory.types';
+import { StockAdjustmentFormData } from '../../types/inventory.types';
 
 interface StockAdjustmentDialogProps {
   open: boolean;
@@ -33,7 +34,7 @@ const schema = yup.object().shape({
     .min(0, 'Quantity cannot be negative')
     .required('New quantity is required'),
   reason: yup.string().required('Reason is required'),
-  reference: yup.string(),
+  reference: yup.string().optional(),
 });
 
 const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
@@ -48,7 +49,7 @@ const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
     watch,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<StockAdjustmentFormData>({
+  } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
       new_quantity: stockItem.quantity,
@@ -60,7 +61,7 @@ const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
   const newQuantity = watch('new_quantity');
   const quantityDifference = newQuantity - stockItem.quantity;
 
-  const handleFormSubmit = async (data: StockAdjustmentFormData) => {
+  const handleFormSubmit = async (data: StockAdjustmentFormData): Promise<void> => {
     try {
       await onSubmit(data);
       reset();
@@ -90,7 +91,7 @@ const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
         </Box>
       </DialogTitle>
 
-      <form onSubmit={handleSubmit(handleFormSubmit)}>
+      <form onSubmit={handleSubmit(handleFormSubmit as any)}>
         <DialogContent dividers>
           <Grid container spacing={3}>
             <Grid item xs={12}>

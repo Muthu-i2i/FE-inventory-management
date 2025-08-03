@@ -22,7 +22,7 @@ import {
 } from '@mui/icons-material';
 import { enqueueSnackbar } from 'notistack';
 import PageContainer from '../../components/common/PageContainer';
-import { mockProductService } from '../../mocks/mockProductService';
+import { productService } from '../../api/product.api';
 
 const ProductList: React.FC = () => {
   const [products, setProducts] = useState<any[]>([]);
@@ -32,7 +32,7 @@ const ProductList: React.FC = () => {
   const loadProducts = async () => {
     setLoading(true);
     try {
-      const response = await mockProductService.getProducts({});
+      const response = await productService.getProducts({});
       setProducts(response.results);
     } catch (error) {
       enqueueSnackbar('Failed to load products', { variant: 'error' });
@@ -52,7 +52,7 @@ const ProductList: React.FC = () => {
 
   const handleDelete = async (productId: number) => {
     try {
-      await mockProductService.deleteProduct(productId);
+      await productService.deleteProduct(productId);
       enqueueSnackbar('Product deleted successfully', { variant: 'success' });
       loadProducts();
     } catch (error) {

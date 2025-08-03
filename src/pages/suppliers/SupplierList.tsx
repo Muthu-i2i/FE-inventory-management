@@ -26,7 +26,7 @@ import {
 } from '@mui/icons-material';
 import { enqueueSnackbar } from 'notistack';
 import PageContainer from '../../components/common/PageContainer';
-import { mockSupplierService } from '../../mocks/mockSupplierService';
+import { supplierService } from '../../api/supplier.api';
 import { Supplier, SupplierFilters } from '../../types/supplier.types';
 import SupplierForm from './SupplierForm';
 import DeleteConfirmDialog from '../../components/common/DeleteConfirmDialog';
@@ -45,7 +45,7 @@ const SupplierList: React.FC = () => {
   const loadSuppliers = async () => {
     setLoading(true);
     try {
-      const response = await mockSupplierService.getSuppliers(filters);
+      const response = await supplierService.getSuppliers(filters);
       setSuppliers(response.results);
     } catch (error) {
       enqueueSnackbar('Failed to load suppliers', { variant: 'error' });
@@ -88,7 +88,7 @@ const SupplierList: React.FC = () => {
     if (!selectedSupplier) return;
 
     try {
-      await mockSupplierService.deleteSupplier(selectedSupplier.id);
+      await supplierService.deleteSupplier(selectedSupplier.id);
       enqueueSnackbar('Supplier deleted successfully', { variant: 'success' });
       loadSuppliers();
     } catch (error) {

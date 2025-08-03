@@ -221,13 +221,7 @@ const Login: React.FC = () => {
                 Test Accounts:
               </Typography>
               <Typography variant="caption" color="text.secondary" component="div">
-                Admin: admin / admin123
-              </Typography>
-              <Typography variant="caption" color="text.secondary" component="div">
-                Manager: manager / manager123
-              </Typography>
-              <Typography variant="caption" color="text.secondary" component="div">
-                Staff: staff / staff123
+                login: admin / admin123
               </Typography>
             </Box>
           </Box>
