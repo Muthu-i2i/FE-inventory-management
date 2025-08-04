@@ -216,14 +216,14 @@ const Login: React.FC = () => {
               )}
             </Button>
 
-            <Box sx={{ mt: 2, textAlign: 'center' }}>
+            {/* <Box sx={{ mt: 2, textAlign: 'center' }}>
               <Typography variant="body2" color="text.secondary">
                 Test Accounts:
               </Typography>
               <Typography variant="caption" color="text.secondary" component="div">
                 login: admin / admin123
               </Typography>
-            </Box>
+            </Box> */}
           </Box>
         </Paper>
       </Container>
