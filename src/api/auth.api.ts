@@ -2,7 +2,7 @@ import axiosInstance from './axiosConfig';
 import { LoginCredentials, AuthResponse, User } from '../types/auth.types';
 import { mockAuthService } from '../mocks/mockAuthService';
 
-// Real API implementation (kept for future use)
+// Real API implementation
 export const realAuthService = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
     try {
@@ -30,7 +30,15 @@ export const realAuthService = {
         token: access
       };
     } catch (error: any) {
-      // Enhanced error handling
+      // Enhanced error handling with detailed logging
+      console.error('Login error:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+        url: error.config?.url,
+        headers: error.config?.headers
+      });
+
       if (error.response?.status === 0 && error.message === 'Network Error') {
         throw new Error('Unable to connect to the server. Please check your internet connection.');
       }
@@ -40,7 +48,10 @@ export const realAuthService = {
       if (error.response?.status === 403) {
         throw new Error('Access forbidden. Please check your credentials.');
       }
-      throw error;
+      if (error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
+      throw new Error('An error occurred during login. Please try again.');
     }
   },
 
@@ -87,6 +98,7 @@ export const realAuthService = {
   }
 };
 
-// Use mock service for now
-// To switch back to real implementation, just change this line to: export const authService = realAuthService;
-export const authService = mockAuthService;
+// Use real API implementation
+export const authService = realAuthService;
+
+// To switch back to mock service, change to: export const authService = mockAuthService;

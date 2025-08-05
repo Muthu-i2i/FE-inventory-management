@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const baseURL = process.env.REACT_APP_API_URL || 'https://be-inventory-management.onrender.com/api';
+// Always use the hosted backend API
+const baseURL = 'https://be-inventory-management.onrender.com/api';
 
 const axiosInstance = axios.create({
   baseURL,
@@ -8,8 +9,8 @@ const axiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  // Enable sending cookies and credentials
-  withCredentials: true
+  // Disable withCredentials for now as we're using token-based auth
+  withCredentials: false
 });
 
 // Request interceptor for API calls
@@ -19,10 +20,8 @@ axiosInstance.interceptors.request.use(
     console.log('Token from localStorage:', token);
     console.log('Request URL:', config.url);
 
-    // Add CORS headers to every request
-    config.headers['Access-Control-Allow-Origin'] = '*';
-    config.headers['Access-Control-Allow-Methods'] = 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS';
-    config.headers['Access-Control-Allow-Headers'] = 'X-Requested-With, Content-Type, Accept, Authorization';
+      // Remove client-side CORS headers as they should be set by the server
+    // The server at be-inventory-management.onrender.com should handle CORS
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
